@@ -1,33 +1,5 @@
 nextflow.enable.dsl=2
 
-/*
- * LOX pipeline - Stage 1
- *
- * FASTQ
- *   |
- *   v
- * STAR / STARsolo
- *   |
- *   +--> sorted BAM
- *   |
- *   +--> Solo.out
- *
- * sorted BAM
- *   |
- *   +--> samtools index
- *   |
- *   +--> bcftools mpileup/call
- *             |
- *             v
- *        variants.vcf.gz
- *             |
- *             v
- *        bcftools norm
- *             |
- *             v
- *        variants_normalized.vcf.gz
- */
-
 
 include { STAR_ALIGN } from './modules/star_align'
 include { SAMTOOLS_INDEX } from './modules/samtools_index'
@@ -38,6 +10,7 @@ include { WASP_VCF } from './modules/wasp_vcf'
 include { STAR_WASP} from './modules/star_wasp'
 include { SAMTOOLS_INDEX_WASP } from './modules/samtools_index_wasp'
 include { XCISE_IMPLEMENTATION } from './modules/xcise_implementation'
+include { XCISE_XDOSAGE } from './modules/xcise_xdosage'
 
 /*
  * Automatic chemistry detection with barcode supported barcode file
@@ -142,13 +115,7 @@ workflow {
         error "Missing required parameter: --whitelist"
     }
 
-    if (!params.common_snvs) {
-        error "Missing required parameter: --common_snvs"
-    }
 
-    if (!params.xcise_dir) {
-        error "Missing required parameter: --xcise_dir"
-    }
 
     /*
      * ---------------------------------------------------------
@@ -188,6 +155,7 @@ workflow {
     common_snvs = file(params.common_snvs)
     common_snvs_index = file("${params.common_snvs}.csi")
 
+    xcise_dir = file(params.xcise_dir)
     vcf4wasp = file("${params.xcise_dir}/vcf4wasp.pl")
 
     /*
@@ -286,7 +254,7 @@ workflow {
 
         ${vcf4wasp}
 
-        Please check --xcise-dir.
+        Please check the XCISE resource directory.
         """
     }
 
@@ -439,4 +407,9 @@ workflow {
     xcise_ch = XCISE_IMPLEMENTATION(
         xcise_input_ch
     )
+
+    xcise_xdosage_ch = XCISE_XDOSAGE(
+        xcise_ch
+    )
+
 }
