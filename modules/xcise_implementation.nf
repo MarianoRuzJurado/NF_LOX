@@ -7,7 +7,7 @@ process XCISE_IMPLEMENTATION {
 
     output:
     tuple val(sample),
-          path("${sample}__chrX_XCISE_LoX_bc2hap.txt"),
+          path("${sample}_chrX_XCISE_LoX_bc2hap.txt"),
           path(solo),
           path(bam),
           path(vcf),
