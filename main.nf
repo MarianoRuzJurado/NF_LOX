@@ -13,7 +13,7 @@ include { XCISE_IMPLEMENTATION } from './modules/xcise_implementation'
 include { XCISE_XDOSAGE } from './modules/xcise_xdosage'
 
 /*
- * Automatic chemistry detection with barcode supported barcode file
+ * Automatic chemistry detection with barcode file
  */
 
 def whitelist_layouts() {
@@ -82,7 +82,7 @@ workflow {
 ║                                                              ║
 ║══════════════════════════════════════════════════════════════║
 ║    Nextflow LOX Pipeline - Author: Mariano Ruz Jurado        ║
-║    Found issues? Report them here: LINKTOGITHUB              ║
+║    Found problems? Report them under NF_LOX/Issues on github ║
 ╚══════════════════════════════════════════════════════════════╝
     '''
 
@@ -118,15 +118,7 @@ workflow {
 
 
     /*
-     * ---------------------------------------------------------
      * Define reference files
-     * ---------------------------------------------------------
-     *
-     * Expected structure:
-     *
-     * GRCh38_STAR_ensembl_115/
-     * |
-     * └── Homo_sapiens.GRCh38.dna.primary_assembly.fa
      */
 
     star_index = file("${params.reference}")
@@ -159,9 +151,7 @@ workflow {
     vcf4wasp = file("${params.xcise_dir}/vcf4wasp.pl")
 
     /*
-     * ---------------------------------------------------------
-     * Detect 10x barcode / UMI layout
-     * ---------------------------------------------------------
+     * Detect 10x barcode and UMI layout
      */
 
     def layouts = whitelist_layouts()
@@ -194,9 +184,7 @@ workflow {
     """
 
     /*
-     * ---------------------------------------------------------
-     * Check that required files/directories exist
-     * ---------------------------------------------------------
+     * Check for required files and directories
      */
 
     if (!star_index.exists()) {
@@ -261,16 +249,13 @@ workflow {
     /*
      * ---------------------------------------------------------
      * FASTQ input
-     * ---------------------------------------------------------
-     *
-     * IMPORTANT:
-     *
-     * We preserve the R2/R1 order from original STAR command XCISE github. This step still confuses me, dpcumentation is weird.
+     * preserve the R2/R1 order from original XCISE analysis.
+     * This step still confuses me, documentation is missing about r2 or r1 first.
      *
      * Original:
      *
      * STAR --readFilesIn R2.fastq.gz R1.fastq.gz
-     * Also added support for multilane samples
+     * has now support for multilane samples, needs testing
      */
 
     r1_files = params.r1
@@ -303,9 +288,7 @@ workflow {
 
 
     /*
-     * ---------------------------------------------------------
-     * STAR / STARsolo
-     * ---------------------------------------------------------
+     * STARsolo first run without WASP -> normal alignment
      */
 
     star_ch = STAR_ALIGN(
@@ -317,9 +300,7 @@ workflow {
 
 
     /*
-     * ---------------------------------------------------------
      * samtools index
-     * ---------------------------------------------------------
      */
 
     indexed_bam_ch = SAMTOOLS_INDEX(
@@ -328,9 +309,7 @@ workflow {
 
 
     /*
-     * ---------------------------------------------------------
      * Variant calling
-     * ---------------------------------------------------------
      */
 
     variants_ch = CALL_VARIANTS(
@@ -340,9 +319,7 @@ workflow {
 
 
     /*
-     * ---------------------------------------------------------
      * Variant normalization
-     * ---------------------------------------------------------
      */
 
     normalized_ch = NORMALIZE_VARIANTS(
@@ -351,9 +328,7 @@ workflow {
     )
 
     /*
-     * ---------------------------------------------------------
      * intersction of variants
-     * ---------------------------------------------------------
      */
 
     isec_ch = ISEC_VARIANTS(

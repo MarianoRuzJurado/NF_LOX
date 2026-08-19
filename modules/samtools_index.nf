@@ -5,7 +5,7 @@ process SAMTOOLS_INDEX {
     input:
 
     /*
-     * BAM and Solo output produced by STAR.
+     * BAM and Solo output from STAR.
      */
     tuple val(sample), path(bam), path(solo)
 
@@ -13,7 +13,7 @@ process SAMTOOLS_INDEX {
     output:
 
     /*
-     * Pass the BAM, its index, and the Solo directory onward.
+     * BAM, its index, and the Solo directory needs to be passed on.
      */
     tuple val(sample),
           path(bam),
