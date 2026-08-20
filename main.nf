@@ -82,7 +82,7 @@ workflow {
 ║                                                              ║
 ║══════════════════════════════════════════════════════════════║
 ║    Nextflow LOX Pipeline - Author: Mariano Ruz Jurado        ║
-║    Found problems? Report them under NF_LOX/Issues on GitHub ║
+║    Found problems? Report them under NF_LOX/Issues on github ║
 ╚══════════════════════════════════════════════════════════════╝
     '''
 
