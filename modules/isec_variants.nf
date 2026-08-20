@@ -1,6 +1,7 @@
 process ISEC_VARIANTS {
-
+    // Right now the bcftools isec uses Qual >= 200, might be to strict
     tag "$sample"
+    conda 'bioconda::bcftools=1.22'
 
     input:
 

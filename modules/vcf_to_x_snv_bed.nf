@@ -1,6 +1,7 @@
 process VCF_TO_X_SNV_BED {
 
     tag "$sample"
+    conda 'bioconda::bcftools=1.22'
 
     input:
     tuple val(sample), path(vcf)

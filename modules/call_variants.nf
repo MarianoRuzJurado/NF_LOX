@@ -1,6 +1,7 @@
 process CALL_VARIANTS {
 
     tag "$sample"
+    conda 'bioconda::bcftools=1.22'
 
     input:
 

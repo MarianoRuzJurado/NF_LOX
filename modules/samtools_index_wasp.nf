@@ -1,6 +1,7 @@
 process SAMTOOLS_INDEX_WASP {
 
     tag "$sample"
+    conda 'bioconda::samtools=1.22.1'
 
     input:
 

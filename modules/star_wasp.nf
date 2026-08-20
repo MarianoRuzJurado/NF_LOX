@@ -1,6 +1,7 @@
 process STAR_WASP {
 
     tag "$sample"
+    conda 'bioconda::star=2.7.11b conda-forge::gzip'
 
     input:
     tuple val(sample), path(r2), path(r1)
