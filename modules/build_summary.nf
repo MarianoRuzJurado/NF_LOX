@@ -2,6 +2,8 @@ process BUILD_SUMMARY {
 
     tag "$sample"
 
+    publishDir "${params.outdir}/${sample}", mode: 'copy', overwrite: true
+
     conda 'conda-forge::python=3.11 conda-forge::pandas'
 
     input:
