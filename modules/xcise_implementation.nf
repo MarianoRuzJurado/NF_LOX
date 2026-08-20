@@ -16,7 +16,7 @@ process XCISE_IMPLEMENTATION {
     script:
     """
     perl ${params.xcise_dir}/xcise_lox.pl \
-        -o ${sample}_ \
+        -o ${sample} \
         -s ${vcf} \
         -b ${bam}
     """
