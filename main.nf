@@ -11,6 +11,11 @@ include { STAR_WASP} from './modules/star_wasp'
 include { SAMTOOLS_INDEX_WASP } from './modules/samtools_index_wasp'
 include { XCISE_IMPLEMENTATION } from './modules/xcise_implementation'
 include { XCISE_XDOSAGE } from './modules/xcise_xdosage'
+include { VCF_TO_X_SNV_BED } from './modules/vcf_to_x_snv_bed'
+include { INTERSECT_XESCAPE_SNVS } from './modules/intersect_xescape_snvs'
+include { BUILD_XESCAPE_HAPLOTYPE } from './modules/build_Xescape_haplotype'
+include { BUILD_SUMMARY } from './modules/build_summary'
+
 
 /*
  * Automatic chemistry detection with barcode file
@@ -144,11 +149,14 @@ workflow {
         """
     }
 
+    // Define the files provided in ressources
+
     common_snvs = file(params.common_snvs)
     common_snvs_index = file("${params.common_snvs}.csi")
 
-    xcise_dir = file(params.xcise_dir)
+    // xcise_dir = file(params.xcise_dir)
     vcf4wasp = file("${params.xcise_dir}/vcf4wasp.pl")
+    xescape_bed = file("${params.xcise_dir}/XCI_escape_gene_coordinates.bed")
 
     /*
      * Detect 10x barcode and UMI layout
@@ -241,6 +249,15 @@ workflow {
         vcf4wasp.pl file does not exist:
 
         ${vcf4wasp}
+
+        Please check the XCISE resource directory.
+        """
+    }
+    if (!xescape_bed.exists()) {
+        error """
+        XCI escape gene BED file does not exist:
+
+        ${xescape_bed}
 
         Please check the XCISE resource directory.
         """
@@ -387,4 +404,53 @@ workflow {
         xcise_ch
     )
 
+    x_snv_bed_ch = VCF_TO_X_SNV_BED(
+        heterozygous_vcf_ch
+    )
+
+    // combine the channels
+    xescape_snv_input_ch = x_snv_bed_ch
+    .map { sample, snv_bed ->
+        tuple(sample, snv_bed, xescape_bed)
+    }
+
+    xescape_snvs_ch = INTERSECT_XESCAPE_SNVS(
+        xescape_snv_input_ch
+    )
+
+    // join necessary channels for module XESCAPE HAPLOTYPE, needs sample, bam, bai, starsolo and xescape snv
+    xescape_haplotype_input_ch = wasp_indexed_ch
+        .join(xescape_snvs_ch)
+        .map { sample, bam, bai, solo, xescape_snvs ->
+            tuple(sample, bam, bai, xescape_snvs)
+        }
+
+    xescape_haplotype_ch = BUILD_XESCAPE_HAPLOTYPE(
+        xescape_haplotype_input_ch
+    )
+
+        xescape_final_input_ch = xcise_xdosage_ch
+        .join(xescape_haplotype_ch)
+        .join(xescape_snvs_ch)
+        .map { sample,
+               xdosage,
+               lox_haplotype,
+               solo,
+               bam,
+               vcf,
+               xescape_haplotype,
+               xescape_snvs ->
+
+            tuple(
+                sample,
+                xescape_haplotype,
+                xdosage,
+                lox_haplotype,
+                xescape_snvs
+            )
+        }
+
+    xescape_final_ch = BUILD_SUMMARY(
+        xescape_final_input_ch
+    )
 }
