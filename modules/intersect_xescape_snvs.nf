@@ -1,7 +1,7 @@
 process INTERSECT_XESCAPE_SNVS {
 
     tag "$sample"
-    conda 'bioconda::bcftools=2.31.1'
+    conda 'bioconda::bedtools=2.31.1'
 
     input:
     tuple val(sample), path(snv_bed), path(xescape_bed)
