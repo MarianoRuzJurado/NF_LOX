@@ -25,7 +25,7 @@ The main final output is:
 
     <sample>_Xescape_final_cell_level.tsv
 
-By default it is found in:
+By default, it is found in:
 
     NF_LOX_results/
 
@@ -39,6 +39,8 @@ The following software is required to run the pipeline:
 
 - Nextflow 26.04.6 or a compatible recent Nextflow version
 - Conda
+
+The followining software will be handled automatically in Conda environments:
 - STAR
 - samtools
 - bcftools
@@ -47,9 +49,8 @@ The following software is required to run the pipeline:
   - pysam
   - pandas
 
-The pipeline uses Conda environments for process-level software dependencies where specified in the process modules.
 
-The current dependencies are:
+Dependencies are fixed as follows:
 
     conda-forge::python=3.11
     conda bioconda::star=2.7.11b
@@ -70,7 +71,7 @@ The pipeline requires:
 - The corresponding genome FASTA provided in the reference
 - A compatible 10x barcode whitelist
 
-The reference directory is expected to contain at least:
+Make sure that the reference directory contains at least:
 
     GRCh38_STAR_ensembl_115/
     ├── STAR index files
@@ -80,7 +81,7 @@ The corresponding FASTA index should also be available:
 
     Homo_sapiens.GRCh38.dna.primary_assembly.fa.fai
 
-The resources directory contains pipeline-specific files, including:
+The supplied resources directory contains pipeline-specific files, including:
 
     XCI_escape_gene_coordinates.bed
     GRCh38_Common_Xlinked_SNVs.repaired.vcf.gz
@@ -93,7 +94,7 @@ The resources directory contains pipeline-specific files, including:
 
 ## 10x chemistry detection
 
-The pipeline determines the 10x library layout from the basename of the supplied whitelist.
+NF_LOX determines the 10x library layout from the basename of the supplied whitelist.
 
 Currently supported whitelists include:
 
@@ -104,23 +105,21 @@ Currently supported whitelists include:
     3M-3pgex-may-2023.txt
     3M-3pgex-may-2023_TRU.txt
 
-STARsolo requires uncompressed barcode whitelists.
+NOTE: STARsolo requires uncompressed barcode whitelists, please make sure no .gz files are provided.
 
 ## Usage
 
 A typical run is:
 
     nextflow run /path/to/NF_LOX_Pycharm/main.nf \
-        --sample 5kPBMC4 \
+        --sample SAMPLENAME \
         --r1 /path/to/L001_R1.fastq.gz,/path/to/L002_R1.fastq.gz \
         --r2 /path/to/L001_R2.fastq.gz,/path/to/L002_R2.fastq.gz \
-        --reference /path/to/GRCh38_STAR_ensembl_115/ \
-        --whitelist /path/to/3M-3pgex-may-2023_TRU.txt \
-        -resume
+        --reference /path/to/referencegenome/ \
+        --whitelist /path/to/barcodes.txt \
 
 The R1 and R2 arguments are comma-separated lists dependent on the number of lanes used for the experiment. The number of R1 and R2 files must be identical.
 
-The pipeline currently preserves the original LOX/XCISE STAR read order.
 
 ## Example
 
@@ -136,17 +135,18 @@ https://www.10xgenomics.com/datasets/5k_Human_Donor4_PBMC_3p_gem-x
 
 ## Output
 
-Only the final cell-level result is intended to be returned as the user-facing output.
+Only the final cell-level result is intended to be returned, ths one can be integrated in downstream single cell analysis for example in Seurat or Scanpy.
 
 Default:
 
     NF_LOX_results/<sample>_Xescape_final_cell_level.tsv
 
-Intermediate files remain in the Nextflow `work/` directory and are used for caching and resume functionality.
+Intermediate files remain in the Nextflow `work/` directory of the pipeline and can be inspected for problems.
+Failures of the pipeline can be mostly explained by no SNVs found in the .vcf file.
 
 ## Important resource files
 
-The following resources are required by the workflow and should remain available:
+These resources are required by the workflow and should remain available:
 
     resources/
     ├── XCI_escape_gene_coordinates.bed
@@ -160,12 +160,12 @@ The X-escape BED file defines the genomic coordinates used to determine whether 
 
 ## Troubleshooting
 
-Please refer to the Issues section to report problems.
-Alternatively, an email can be send to ruzjurado@med.uni-frankfurt.de.
+Please refer to the Issues section on GitHub to report problems.
+Alternatively, an email can be sent to ruzjurado@med.uni-frankfurt.de.
 
 ## Directory structure
 
-A recommended project structure is:
+The recommended project structure should follow this:
 
     NF_LOX_Pycharm/
     ├── main.nf
@@ -191,10 +191,8 @@ A recommended project structure is:
     │   ├── vcf4wasp.pl
     │   ├── build_Xescape_Haplotype.py
     │   └── build_Xescape_final.py
-    └── results/
+    └── NF_LOX_results/
 
 ## Author
 
-Nextflow LOX Pipeline
-
-Author: Mariano Ruz Jurado
+Mariano Ruz Jurado
