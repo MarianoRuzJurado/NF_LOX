@@ -2,6 +2,8 @@
 
 Nextflow pipeline for allele-specific X-chromosome analysis and X-escape characterization from single-cell RNA-seq data.
 
+    git clone https://github.com/MarianoRuzJurado/NF_LOX
+
 ## Overview
 
 NF_LOX automates the workflow used to generate cell-level X-chromosome haplotype and X-escape information from scRNA-seq data.
@@ -33,6 +35,43 @@ For example:
 
     NF_LOX_results/5kPBMC4_Xescape_final_cell_level.tsv
 
+
+## Usage
+
+A typical run is:
+
+    nextflow run /path/to/NF_LOX_Pycharm/main.nf \
+        --sample SAMPLENAME \
+        --r1 /path/to/L001_R1.fastq.gz,/path/to/L002_R1.fastq.gz \
+        --r2 /path/to/L001_R2.fastq.gz,/path/to/L002_R2.fastq.gz \
+        --reference /path/to/referencegenome/ \
+        --whitelist /path/to/barcodes.txt \
+
+The R1 and R2 arguments are comma-separated lists dependent on the number of lanes used for the experiment. The number of R1 and R2 files must be identical.
+
+
+## Example
+
+For the 5k PBMC Donor 4 dataset:
+https://www.10xgenomics.com/datasets/5k_Human_Donor4_PBMC_3p_gem-x
+
+    nextflow run /mnt/mariano/Temporary_Restore/Mariano/forLukasZ/2026/request_260520_LOX_workflow/NF_LOX_Pycharm/main.nf \
+        --sample 5kPBMC4 \
+        --r1 /path/to/S4_L001_R1_001.fastq.gz,/path/to/S4_L002_R1_001.fastq.gz,/path/to/S4_L003_R1_001.fastq.gz,/path/to/S4_L004_R1_001.fastq.gz \
+        --r2 /path/to/S4_L001_R2_001.fastq.gz,/path/to/S4_L002_R2_001.fastq.gz,/path/to/S4_L003_R2_001.fastq.gz,/path/to/S4_L004_R2_001.fastq.gz \
+        --reference /path/to/GRCh38_STAR_ensembl_115/ \
+        --whitelist /opt/cellranger-10.1.0/lib/python/cellranger/barcodes/3M-3pgex-may-2023_TRU.txt \
+
+## Output
+
+Only the final cell-level result is intended to be returned, ths one can be integrated in downstream single cell analysis for example in Seurat or Scanpy.
+
+Default:
+
+    NF_LOX_results/<sample>_Xescape_final_cell_level.tsv
+
+Intermediate files remain in the Nextflow `work/` directory of the pipeline and can be inspected for problems.
+Failures of the pipeline can be mostly explained by no SNVs found in the .vcf file.
 ## Requirements
 
 The following software is required to run the pipeline:
@@ -62,7 +101,7 @@ Dependencies are fixed as follows:
     bioconda::samtools=1.22.1
     bioconda::bedtools=2.31.1
 
-## Input requirements
+## Input files
 
 The pipeline requires:
 
@@ -107,42 +146,6 @@ Currently supported whitelists include:
 
 NOTE: STARsolo requires uncompressed barcode whitelists, please make sure no .gz files are provided.
 
-## Usage
-
-A typical run is:
-
-    nextflow run /path/to/NF_LOX_Pycharm/main.nf \
-        --sample SAMPLENAME \
-        --r1 /path/to/L001_R1.fastq.gz,/path/to/L002_R1.fastq.gz \
-        --r2 /path/to/L001_R2.fastq.gz,/path/to/L002_R2.fastq.gz \
-        --reference /path/to/referencegenome/ \
-        --whitelist /path/to/barcodes.txt \
-
-The R1 and R2 arguments are comma-separated lists dependent on the number of lanes used for the experiment. The number of R1 and R2 files must be identical.
-
-
-## Example
-
-For the 5k PBMC Donor 4 dataset:
-https://www.10xgenomics.com/datasets/5k_Human_Donor4_PBMC_3p_gem-x
-
-    nextflow run /mnt/mariano/Temporary_Restore/Mariano/forLukasZ/2026/request_260520_LOX_workflow/NF_LOX_Pycharm/main.nf \
-        --sample 5kPBMC4 \
-        --r1 /path/to/S4_L001_R1_001.fastq.gz,/path/to/S4_L002_R1_001.fastq.gz,/path/to/S4_L003_R1_001.fastq.gz,/path/to/S4_L004_R1_001.fastq.gz \
-        --r2 /path/to/S4_L001_R2_001.fastq.gz,/path/to/S4_L002_R2_001.fastq.gz,/path/to/S4_L003_R2_001.fastq.gz,/path/to/S4_L004_R2_001.fastq.gz \
-        --reference /path/to/GRCh38_STAR_ensembl_115/ \
-        --whitelist /opt/cellranger-10.1.0/lib/python/cellranger/barcodes/3M-3pgex-may-2023_TRU.txt \
-
-## Output
-
-Only the final cell-level result is intended to be returned, ths one can be integrated in downstream single cell analysis for example in Seurat or Scanpy.
-
-Default:
-
-    NF_LOX_results/<sample>_Xescape_final_cell_level.tsv
-
-Intermediate files remain in the Nextflow `work/` directory of the pipeline and can be inspected for problems.
-Failures of the pipeline can be mostly explained by no SNVs found in the .vcf file.
 
 ## Important resource files
 
