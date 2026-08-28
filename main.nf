@@ -15,6 +15,7 @@ include { VCF_TO_X_SNV_BED } from './modules/vcf_to_x_snv_bed'
 include { INTERSECT_XESCAPE_SNVS } from './modules/intersect_xescape_snvs'
 include { BUILD_XESCAPE_HAPLOTYPE } from './modules/build_Xescape_haplotype'
 include { BUILD_SUMMARY } from './modules/build_summary'
+include { CREATE_RDS } from './modules/create_rds'
 
 
 /*
@@ -453,4 +454,22 @@ workflow {
     xescape_final_ch = BUILD_SUMMARY(
         xescape_final_input_ch
     )
+
+    rds_input_ch = star_ch
+        .map { sample, bam, solo ->
+            tuple(sample, solo)
+        }
+        .join(xescape_final_ch)
+        .map { sample, solo, xescape_final ->
+            tuple(
+                sample,
+                solo,
+                xescape_final
+            )
+        }
+
+    rds_ch = CREATE_RDS(
+        rds_input_ch
+    )
+
 }

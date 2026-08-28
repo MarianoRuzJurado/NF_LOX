@@ -7,6 +7,8 @@ Nextflow pipeline for allele-specific X-chromosome analysis and X-escape charact
 ## Overview
 
 NF_LOX automates the workflow used to generate cell-level X-chromosome haplotype and X-escape information from scRNA-seq data.
+With the information of the active haplotype as well as with detection of X-escape genes allele location a loss-of-X can
+be derived per cell. Please be aware that sequencing depth is the crucial for the confidence of the analysis.
 
 The pipeline combines:
 
@@ -23,8 +25,9 @@ The pipeline combines:
 11. Integration of X-escape haplotypes with XCISE dosage and LoX haplotypes.
 12. Generation of the final cell-level X-escape table.
 
-The main final output is:
-
+The main final outputs are:
+    
+    <sample>_Xescape_final.rds
     <sample>_Xescape_final_cell_level.tsv
 
 By default, it is found in:
@@ -32,7 +35,8 @@ By default, it is found in:
     NF_LOX_results/
 
 For example:
-
+    
+    NF_LOX_results/5kPBMC4_Xescape_final.rds
     NF_LOX_results/5kPBMC4_Xescape_final_cell_level.tsv
 
 
@@ -64,10 +68,11 @@ https://www.10xgenomics.com/datasets/5k_Human_Donor4_PBMC_3p_gem-x
 
 ## Output
 
-Only the final cell-level result is intended to be returned, ths one can be integrated in downstream single cell analysis for example in Seurat or Scanpy.
+The final cell-level result and a .rds file are returned, these one can be integrated in downstream single cell analysis for example in Seurat or Scanpy.
 
 Default:
 
+    NF_LOX_results/<sample>_Xescape_final.rds
     NF_LOX_results/<sample>_Xescape_final_cell_level.tsv
 
 Intermediate files remain in the Nextflow `work/` directory of the pipeline and can be inspected for problems.
@@ -84,10 +89,13 @@ The followining software will be handled automatically in Conda environments:
 - samtools
 - bcftools
 - Python 3.11
+- R 4.6
 - Python packages:
   - pysam
   - pandas
-
+- R packages:
+  - SeuratObject
+  - optparse
 
 Dependencies are fixed as follows:
 
@@ -112,7 +120,7 @@ The pipeline requires:
 
 Make sure that the reference directory contains at least:
 
-    GRCh38_STAR_ensembl_115/
+    GRCh38_STAR_ensembl_115/ #or other reference
     ├── STAR index files
     └── Homo_sapiens.GRCh38.dna.primary_assembly.fa
 
@@ -128,6 +136,7 @@ The supplied resources directory contains pipeline-specific files, including:
     vcf4wasp.pl
     build_Xescape_Haplotype.py
     build_Xescape_final.py
+    create_Xescape_rds.R
 
 `XCI_escape_gene_coordinates.bed` is a stable resource used to identify variants falling within X-escape genes.
 
@@ -157,7 +166,8 @@ These resources are required by the workflow and should remain available:
     ├── GRCh38_Common_Xlinked_SNVs.repaired.vcf.gz.csi
     ├── vcf4wasp.pl
     ├── build_Xescape_Haplotype.py
-    └── build_Xescape_final.py
+    ├── build_Xescape_final.py
+    └── create_Xescape_rds.R
 
 The X-escape BED file defines the genomic coordinates used to determine whether an informative X-linked SNV lies within an X-escape gene.
 
@@ -186,14 +196,16 @@ The recommended project structure should follow this:
     │   ├── vcf_to_x_snv_bed.nf
     │   ├── intersect_xescape_snvs.nf
     │   ├── build_Xescape_haplotype.nf
-    │   └── build_summary.nf
+    │   ├── build_summary.nf
+    │   └── create_rds.nf
     ├── resources/
     │   ├── XCI_escape_gene_coordinates.bed
     │   ├── GRCh38_Common_Xlinked_SNVs.repaired.vcf.gz
     │   ├── GRCh38_Common_Xlinked_SNVs.repaired.vcf.gz.csi
     │   ├── vcf4wasp.pl
     │   ├── build_Xescape_Haplotype.py
-    │   └── build_Xescape_final.py
+    │   ├── build_Xescape_final.py
+    │   └── create_Xescape_rds.R
     └── NF_LOX_results/
 
 ## Author
