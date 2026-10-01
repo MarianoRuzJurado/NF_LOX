@@ -24,7 +24,7 @@ include { CREATE_RDS } from './modules/create_rds'
 
 def whitelist_layouts() {
     return [
-        '737k-april-2014_rc.txt': [
+        '737K-april-2014_rc.txt': [
             name: '10x_3prime_v1',
             cb_start: 1,
             cb_len: 16,
@@ -32,7 +32,7 @@ def whitelist_layouts() {
             umi_len: 10
         ],
 
-        '737k-august-2016.txt': [
+        '737K-august-2016.txt': [
             name: '10x_3prime_v2_or_5prime_v1_v2',
             cb_start: 1,
             cb_len: 16,
